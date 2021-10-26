@@ -208,11 +208,13 @@ function()
 				hacker.style.background = "gray";
 				cel.style.background = "black";
 				cel.innerHTML = "H";
+				location.reload();
 			}
 		}
 		else if( rossz_mezo.indexOf( nid ) != -1 )
 		{
-			alert("Szar vagy!");
+			alert("Egy szenzor észrevett!");
+			location.reload();
 		}
 		else if
 		(
