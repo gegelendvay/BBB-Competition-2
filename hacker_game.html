@@ -5,7 +5,7 @@
 	<meta name="viewport" content="width=device-width">
 
 	<head>
-		<title>ok&#129421;&#128563;</title>
+		<title>Hackeres Játék</title>
 	
 		<script src="jquery/jquery-1.8.2.js" type="text/javascript">
 		</script>
@@ -25,7 +25,23 @@
 		
 	</head>
 	<body>
-		<table style="background:orange; border-color:orange; font-size:2em; text-align:center; margin: auto;" id="puzzle" border="1"></table>
-		<div class="radar"></div>
-		<button class="szenzor_mutato">1 Szenzor megmutatása!!</button>
+		<table id="tabla" border="1"></table>
+		<hr>
+		<section class="adat_doboz">
+			<div class="radar"></div>
+			<div class="lepesszamlalo">Megtett lépések száma: 0</div>
+			<hr>
+			<button class="szenzor_mutato">Egy szenzor megmutatása!!</button>
+			<hr>
+			<div class="leiras">
+				A játékmenet:<br>
+				A pályán egy hacker (<strong style="color:darkblue">H</strong>), egy cél  (<strong style="color:black">C</strong>) és néhány elrejtett szenzor található (<strong style="color:darkred">X</strong>).<br>
+				A hackerrel el kell jutnod a célba, anélkül, hogy a szenzorok észrevennének téged.<br>
+				Egyszerre csak egy mezőt léphetsz, viszont azt átlósan is meglépheted.<br>
+				Ha egy szenzor köré sikerül lépned (az átló is számít!), akkor vesztettél.<br>
+				A játékban segít téged egy érzékelő, ami megmutatja a hozzád legközelebb lévő szenzort.<br>
+				Emellett még egyszer a játék alatt felfedheted a hozzád legközelebb lévő szenzor helyzetét.<br>
+				Jó játékot és sok sikert!
+			</div>
+		</section>
 	</body>
