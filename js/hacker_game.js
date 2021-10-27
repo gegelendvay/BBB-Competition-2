@@ -1,45 +1,56 @@
 $(document).ready(
 function()
 {
-	var nrow = 12;
-	var ncell = 12;
-	var nszenzor = 6;
+	var nrow = 12; // SOROK SZÁMA (át lehet írni (de max csak 30-ig))
+	var ncell = 12; // OSZLOPOK SZÁMA (át lehet írni (de max csak 30-ig))
+	var nszenzor = 5; // SZENZOROK SZÁMA (nyugodtan át lehet őket írni, de nem biztos, hogy képes lesz elhelyezni annyi szenzort a táblán, mert különben nem lehetne nyerni)
+	var lepes = 0;
 	
-	var tt  = new Array(nrow);
+	var mezo  = [];
 	var newrow;
-
+	
+	if( nrow > 30 )
+	{
+		nrow = 30;
+		alert("A maximum sorok száma 30!");
+	}
+	
+	if( ncell > 30)
+	{
+		ncell = 30;
+		alert("A maximum oszlopok száma 30!");
+	}
+	
 	for( var i = 0; i < nrow; i++ )
 	{
-		newrow = document.getElementById("puzzle").insertRow(i);
-		tt[i] = new Array(ncell);
+		newrow = document.getElementById("tabla").insertRow(i);
+		mezo[i] = new Array(ncell);
 		
 		for( var j = 0; j < ncell; j++ )
 		{
-			tt[i][j]=newrow.insertCell(j);
-			tt[i][j].id = i * ncell + j;
-			tt[i][j].onclick = function(){ mystep(this); };
-			tt[i][j].style.width = "50px";
-			tt[i][j].style.height = "50px";
-			tt[i][j].style.color = "white";
-			tt[i][j].style.background = "gray";
+			mezo[i][j] = newrow.insertCell(j);
+			mezo[i][j].id = i * ncell + j;
+			mezo[i][j].onclick = function(){ arrebblep(this); };
+			$( mezo[i][j] ).addClass("mezo");
 		}
 	}
 	
 	var hackerid = ( nrow - 1 ) * ncell;
 	var hacker = document.getElementById( hackerid.toString() );
-	hacker.style.background = "black";
+	$( hacker ).addClass("hacker");
 	hacker.innerHTML = "H";
 	
 	
-	var celid = ncell -1
+	var celid = ncell -1;
 	var cel = document.getElementById( celid.toString() );
-	cel.style.background = "black";
+	$( cel ).addClass("cel");
 	cel.innerHTML = "C";
 	
 	var szenzorid = [];
 	var szenzor = [];
 	var rossz_mezo = [];
-	
+	var proba = 20; // Ennyiszer próbálkozik lerakni egy szenzort, ha előtte nem sikerült neki. (Ezt is át lehet írni)
+					// Figyel arra, hogy el lehessen két szenzor mellett menni, mert másképp le tudná úgy generálni a játékot, hogy vagy a hackert, vagy a célt bezárrják a szenzorok.
 	for( var i = 0; i < nszenzor; i++ )
 	{
 		szenzorid[i] = Math.floor ( Math.random() * nrow * ncell - 1 );
@@ -58,6 +69,11 @@ function()
 			)
 			{
 				i -= 1;
+				proba -= 1;
+				if( proba == 0 )
+				{
+					i = nszenzor;
+				}
 			}
 			else
 			{
@@ -113,6 +129,11 @@ function()
 				else
 				{
 					i -= 1;
+					proba -= 1;
+					if( proba == 0 )
+					{
+						i = nszenzor;
+					}
 				}
 			}
 		}
@@ -126,6 +147,11 @@ function()
 			)
 			{
 				i -= 1;
+				proba -= 1;
+				if( proba == 0 )
+				{
+					i = nszenzor;
+				}
 			}
 			else
 			{
@@ -158,7 +184,7 @@ function()
 		kozelseg = [];
 		hackerid = parseInt( hackerid );
 		
-		for( var i = 0; i < nszenzor; i++ )
+		for( var i = 0; i < szenzor.length; i++ )
 		{
 			if( szenzorid[i] % ncell == 0 )
 			{
@@ -194,7 +220,7 @@ function()
 		$(".radar").html("Legközelebbi szenzor: "+legkozelebb );
 	}
 	
-	function mystep(obj)
+	function arrebblep(obj)
 	{
         var nid = parseInt( obj.id );
 		var nhacker = parseInt( hackerid );
@@ -203,18 +229,19 @@ function()
 		{
 			if( celid - 1 == nhacker || celid + ncell == nhacker || celid + ncell - 1 == nhacker )
 			{
-				alert("Ügyes vagy!");
+				lepes++;
 				hacker.innerHTML = "";
-				hacker.style.background = "gray";
-				cel.style.background = "black";
+				$( hacker ).removeClass("hacker");
+				$( cel ).addClass("hacker");
+				$( cel ).removeClass("cel");
 				cel.innerHTML = "H";
-				location.reload();
+				setTimeout(
+				function()
+				{
+					alert("Ügyes vagy! A megtett lépések száma: "+lepes );
+					location.reload();
+				}, 500);
 			}
-		}
-		else if( rossz_mezo.indexOf( nid ) != -1 )
-		{
-			alert("Egy szenzor észrevett!");
-			location.reload();
 		}
 		else if
 		(
@@ -225,21 +252,60 @@ function()
 			nid - 1 == nhacker && nid % ncell != 0 
 		)
 		{
-			hacker.innerHTML = obj.innerHTML;
-			hacker.style.background = obj.style.background;
-			obj.style.background = "black";
-			obj.innerHTML = "H";
-			hackerid = obj.id;
-			hacker = document.getElementById( hackerid.toString() );
-			radar();
+			if( rossz_mezo.indexOf( nid ) != -1 )
+			{
+				osszes_mutat();
+				$(".szenzor_mutato").show();
+				hacker.innerHTML = obj.innerHTML;
+				$( hacker ).removeClass("hacker");
+				$( obj ).addClass("hacker");
+				obj.innerHTML = "H";
+				obj.style.background = "darkred";
+				hackerid = obj.id;
+				hacker = document.getElementById( hackerid.toString() );
+				lepes++;
+				$(".lepesszamlalo").html("Megtett lépések száma: "+lepes );
+				radar();
+				setTimeout(
+				function()
+				{
+					alert("Egy szenzor észrevett! A megtett lépések száma: "+lepes );
+					location.reload();
+				}, 500);
+			}
+			else
+			{
+				hacker.innerHTML = obj.innerHTML;
+				$( hacker ).removeClass("hacker");
+				$( obj ).addClass("hacker");
+				obj.innerHTML = "H";
+				hackerid = obj.id;
+				hacker = document.getElementById( hackerid.toString() );
+				lepes++;
+				$(".lepesszamlalo").html("Megtett lépések száma: "+lepes );
+				radar();
+			}
 		}
 	}
+	
+	function osszes_mutat()
+	{
+		for( var i = 0; i < szenzor.length; i++ )
+		{
+			mutat(i);
+		}
+	};
 	
 	$(".szenzor_mutato").click(
 	function()
 	{
 		radar();
 		var i = kozelseg.indexOf( legkozelebb );
+		mutat(i);
+	});
+		
+	function mutat(i)
+	{
 		szenzor[i].style.background = "darkred";
 		szenzor[i].innerHTML = "X";
 		
@@ -288,5 +354,6 @@ function()
 		}
 		
 		$(".szenzor_mutato").hide();
-	});
+	};
+	
 });
